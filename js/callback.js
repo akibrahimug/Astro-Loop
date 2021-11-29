@@ -4,15 +4,16 @@ const peopleList = document.getElementById('people');
 const btn = document.querySelector('button');
 
 // Make an AJAX request
-function getJSON(url) {
+function getJSON(url, callback) {
   const xhr = new XMLHttpRequest();
+  xhr.open('GET', url);
   xhr.onload = () => {
     if(xhr.status === 200) {
       let data = JSON.parse(xhr.responseText);
-      console.log(data);
+      callback(data);
     }
   };
-  xhr.open('GET', url);
+
   xhr.send();
 }
 
@@ -38,4 +39,12 @@ function generateHTML(data) {
   }
 }
 
-btn.addEventListener('click', e => getJSON(astrosUrl))
+btn.addEventListener('click', e => {
+    getJSON(astrosUrl, (json) => {
+        json.people.map(person => {
+            getJSON(wikiUrl + person.name, generateHTML)
+        })
+    })
+
+    e.target.remove()
+})
